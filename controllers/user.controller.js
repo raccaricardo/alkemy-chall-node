@@ -11,6 +11,9 @@ const getUsers = async (req, res)=>{
         });
     } catch (error) {
         console.log(error);
+        if(error.message == "Validation error"){
+            return res.status(400).json({ok: false, msg: 'Validation error', error: error.errors});
+        }
         res.status(500).json({ ok: false, error: error.message });          
     }
 }
@@ -23,6 +26,9 @@ const getUser = async (req, res)=>{
         });
     } catch (error) {
         console.log(error);
+        if(error.message == "Validation error"){
+            return res.status(400).json({ok: false, msg: 'Validation error', error: error.errors});
+        }
         res.status(500).json({ ok: false, error: error.message });          
     }
 }
@@ -46,6 +52,9 @@ const loginUser = async (req, res)=>{
         }
     } catch (error) {
         console.log(error);
+        if(error.message == "Validation error"){
+            return res.status(400).json({ok: false, msg: 'Validation error', error: error.errors});
+        }
         res.status(500).json({ ok: false, error: error.message });
     }
 }
@@ -72,6 +81,9 @@ const createUser = async (req, res)=> {
         });
     } catch (error) {
         console.log(error);
+        if(error.message == "Validation error"){
+            return res.status(400).json({ok: false, msg: 'Validation error', error: error.errors});
+        }
         res.status(500).json({ ok: false, error: error.message });
     }
 }
@@ -80,7 +92,6 @@ const editUser = async (req, res) => {
     try {
         const { id } = req.params;
         const user = await User.findByPk( id );
-        console.log(user);
         let {  email = user.email, password = user.password } = req.body;
         if(email !== user.email && password !== user.password){
             await User.update({ email, password }, { where: { id } });
@@ -98,6 +109,9 @@ const editUser = async (req, res) => {
         });
     } catch (error) {
         console.log(error);
+        if(error.message == "Validation error"){
+            return res.status(400).json({ok: false, msg: 'Validation error', error: error.errors});
+        }
         res.status(500).json({ ok: false, error: error.message });
     }
 }
@@ -105,13 +119,13 @@ const editUser = async (req, res) => {
 const unsubscribeUser = async (req, res) => {
     try {
         const { id } = req.params;
-        
-        
-        
         await User.destroy( { where: { id } });
         res.status(200).json({ ok: true, msg: 'User unsubscribed successfully' });
     } catch (error) {
         console.log(error);
+        if(error.message == "Validation error"){
+            return res.status(400).json({ok: false, msg: 'Validation error', error: error.errors});
+        }
         res.status(500).json({ ok: false, error: error.message });
     }
 }

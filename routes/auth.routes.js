@@ -1,9 +1,7 @@
 const { Router } = require('express');
 const { check } = require('express-validator');
 
-const { userExistById } = require('../middlewares/dbValidators');
 
-const router = Router();
 const { 
     createUser,
     editUser,
@@ -13,7 +11,10 @@ const {
     unsubscribeUser
 }= require('../controllers/user.controller.js');
 
-const { validateFields, validateJWT } = require('../middlewares');
+const { validateFields, validateJWT, userExistById } = require('../middlewares');
+
+const router = Router();
+
 router.get('/login',[
     check('email', 'email is required').notEmpty(),
     check('email', 'email invalid').isEmail(),

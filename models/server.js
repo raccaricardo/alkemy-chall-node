@@ -1,9 +1,12 @@
 const express = require("express");
 const cors = require("cors");
 // var jwt = require('express-jwt');
-
+const bodyParser = require('body-parser');
+const multer = require('multer');
 const fileUpload = require("express-fileupload");
 require("dotenv").config();
+
+const upload = multer();
 const { startConnection } = require("../database/config");
 class Server {
 
@@ -12,6 +15,7 @@ class Server {
 		this.port = process.env.PORT;
 		this.paths = {
 			auth: "/api/auth",
+			genre: "/api/genre",
 			
 		};
         
@@ -25,10 +29,14 @@ class Server {
 	middlewares() {
 		// CORS
 		this.app.use( cors() );
-		// Lectura y parseo del body para recibir siempre un json en lugar de un script  
+		// for parsing application/json in replace of scripts
 		this.app.use( express.json() );
+		//form data
+		this.app.use(upload.array()); 
 		// Directorio Público
 		this.app.use( express.static("public") );
+		// for parsing application/xwww-
+		this.app.use(bodyParser.urlencoded({ extended: true }));
 		// FileUpload
 
 		// JWT
@@ -43,6 +51,8 @@ class Server {
 	}
 	routes() {
 		this.app.use( this.paths.auth, require("../routes/auth.routes") );
+		this.app.use( this.paths.genre, require("../routes/genre.routes") );
+
 		
 
 

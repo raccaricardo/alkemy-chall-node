@@ -1,4 +1,4 @@
-const { User } = require('../models/');
+const { User, Genre } = require('../models');
 
 const userExistById = async(id= "") =>{
     if(id == ""){
@@ -11,8 +11,26 @@ const userExistById = async(id= "") =>{
 	
 	}
 }
+ 
+const genreExistById = async(id= "") =>{
+    if(id !== ""){
+	// const userExist = await User.findByPk( id );
+
+	const userExist = await User.findByPk( id );
+    console.log(userExist.msg);
+    console.log({userExist});
+
+    // if(!userExist){
+	// 	throw new Error(`User Id ${id} doesn't exist`);
+
+    // }
+	// console.log(userExist);
+	
+	}
+}
 
 
 module.exports = {
-    userExistById
-};
+    userExistById,
+    genreExistById,
+ };
