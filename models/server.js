@@ -1,24 +1,27 @@
 const express = require("express");
+const hbs = require('hbs');
 const cors = require("cors");
-// var jwt = require('express-jwt');
+const path = require("path");
 const bodyParser = require('body-parser');
-const multer = require('multer');
-const fileUpload = require("express-fileupload");
 require("dotenv").config();
-
-const upload = multer();
 const { startConnection } = require("../database/config");
+const multer = require('multer');
+// set storage for upload images with multer
+
+
 class Server {
 
 	constructor() {
 		this.app  = express();
 		this.port = process.env.PORT;
+        
+		//set view engine handlebars
+		this.app.set('view engine', 'hbs');
 		this.paths = {
 			auth: "/api/auth",
 			genre: "/api/genre",
 			
 		};
-        
 		this.connectDB();
 		// Middlewares
 		this.middlewares();
@@ -32,26 +35,41 @@ class Server {
 		// for parsing application/json in replace of scripts
 		this.app.use( express.json() );
 		//form data
-		this.app.use(upload.array()); 
+		// this.app.use(upload.array()); 
 		// Directorio Público
 		this.app.use( express.static("public") );
 		// for parsing application/xwww-
 		this.app.use(bodyParser.urlencoded({ extended: true }));
+		const storage = multer.diskStorage({
+			destination: ( req, file, cb)=>{
+				cb(null, '../uploads/');
+			},
+			filename: ( req, file, cb)=>{
+				console.log(file);
+				cb(null, Date.now() +"-" + path.extname(file.originalname)  )
+			}
+		})
+		this.app.use(multer(( 
+			storage
+			dest: path.join(__dirname, 'uploads')
+		).single('image')));
 		// FileUpload
 
-		// JWT
-		// this.app.use( jwt({ secret: 'shhhhhhared-secret', algorithms: ['HS256'] }),
-  		// function(req, res) {
-		// 	if (!req.headers){ 
-		// 		console.log(req.headers);
-		// 		return res.sendStatus(401)
-		// 		};
-		// 		res.sendStatus(200);
-  		// 	});		
+		// this.app.use(multer({ 
+		// 	dest: 'uploads'
+		// }).single('image'));
+		// this.app.use(fileUpload({
+		// 	useTempFiles : true,
+		// 	tempFileDir : '/tmp/'
+		// }));
 	}
 	routes() {
+		// this.app.use('/', (req,res) => {
+		// 	res.render('../views/home.hbs');
+		// })
+		this.app.use('/',require('../routes/index.routes'));
 		this.app.use( this.paths.auth, require("../routes/auth.routes") );
-		this.app.use( this.paths.genre, require("../routes/genre.routes") );
+		this.app.use( this.paths.genre, upload.single("image"), require("../routes/genre.routes") );
 
 		
 

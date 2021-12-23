@@ -1,10 +1,11 @@
 const Genre  = require('../models/genre');
-
+const { uploadLocalFile } = require('../helpers')
 // ! POST
 const addGenre = async( req,res ) => {
     try {
-        
         const { name } = req.body;
+        let imageDir = null;
+        console.log(req.file);
         const genre = await Genre.create({ name });
         await genre.save();
         res.status(201).send({ ok: true, genre, message: 'Genre added successfully' });
