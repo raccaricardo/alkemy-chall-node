@@ -1,8 +1,7 @@
 const { Router } = require('express');
 const { check } = require('express-validator');
 
-const multer  = require('multer');
-const upload = multer({ dest: 'upload/'});
+const path = require ('path');
 
 const { validateFields, validateJWT, userExistById, genreExistById } = require('../middlewares');
 
@@ -10,9 +9,10 @@ const { addGenre, deleteGenre, editGenre, getGenre, getGenres } = require('../co
 
 const router = Router();
 
-router.post('/', [
+router.post('/', 
+[
     check('name', 'genre name is required').notEmpty(),
-    upload.single('image'),
+    
     // check('name', 'genre name exist').custom(genreExistByName),
     validateFields
 ], addGenre);

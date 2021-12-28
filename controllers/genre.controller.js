@@ -1,33 +1,60 @@
 const Genre  = require('../models/genre');
-const { uploadLocalFile } = require('../helpers')
+const { uploadLocalFile, deleteLocalFile } = require('../helpers')
+const path = require("path");
+const fs = require('fs');
+
+const imagesFolderName = 'genre';
 // ! POST
 const addGenre = async( req,res ) => {
     try {
         const { name } = req.body;
-        let imageDir = null;
-        console.log(req.file);
-        const genre = await Genre.create({ name });
+        console.log({name});
+        let image;
+        if (req.files) {
+			image = await uploadLocalFile(req.files, 1, undefined, imagesFolderName );
+		}
+        image = image[0];
+
+        const genre = await Genre.create({ name, image });
         await genre.save();
         res.status(201).send({ ok: true, genre, message: 'Genre added successfully' });
     } catch (error) {
         console.log(error);
         if(error.message == "Validation error"){
             return res.status(400).json({ok: false, msg: 'Validation error', error: error.errors});
+        }else{
+        return res.status(500).send({ ok: false, message: 'Error in adding genre', error: error.message });
         }
-        res.status(500).send({ ok: false, message: 'Error in adding genre', error: error.message });
     }
 }
 // ! PUT
 const editGenre = async( req,res ) => {
     try {
+
         const { id } = req.params;
         const { name } = req.body;
-        const genreExist = await Genre.findByPk(id);
-        if(!genreExist){
+        const genre = await Genre.findByPk(id);
+        if(!genre){
             res.status(404).json({ok: false, msg: 'gender id not found'});
         }
-        const genre = await Genre.update({ name }, {where: {id}});
-        res.status(200).send({ ok: true, message: 'Genre updated successfully' });
+        let image = null;
+        if(req.files?.image){
+            image = await uploadLocalFile(req.files, 1, undefined, imagesFolderName);
+            console.log(`image uploaded ${image}`);
+            let images = [];
+            images[0] = genre.image;
+            const filePath = path.join(__dirname,genre.image);
+            fs.unlink(filePath, function(err){
+                if(err) throw err;
+            })
+            await Genre.update({ name, image: image[0] }, {where: {id}});
+            return res.status(200).send({ ok: true, message: 'Genre updated successfully' });
+
+        }else{
+            await Genre.update({ name }, {where: {id}});
+            res.status(200).send({ ok: true, message: 'Genre updated successfully' });
+
+        }
     } catch (error) {
         console.log(error);
         if(error.message == "Validation error"){

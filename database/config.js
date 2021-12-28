@@ -5,8 +5,8 @@ const mysql = require('mysql2/promise');
 // Option 3: Passing parameters separately (other dialects)
 
 const sequelize = new Sequelize(process.env.DB_NAME, process.env.DB_USER, process.env.DB_PASS, {
-  host: process.env.HOST,
-  dialect: 'mysql'
+    host: process.env.HOST,
+    dialect: 'mysql'
 });
 
 const startConnection = async () => {
@@ -23,9 +23,9 @@ const startConnection = async () => {
         await connection.query(`CREATE DATABASE IF NOT EXISTS \`${process.env.DB_NAME}\`;` );
 
 
-        // await sequelize.sync();
-        sequelize.sync({ alter: true, force:true, match: /_test$/ });
+        await sequelize.sync({ alter: true, force:true, match: /_test$/ });
 
+        // await sequelize.sync();
 
 
 

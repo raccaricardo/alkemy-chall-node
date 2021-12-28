@@ -4,10 +4,12 @@ const cors = require("cors");
 const path = require("path");
 const bodyParser = require('body-parser');
 require("dotenv").config();
-const { startConnection } = require("../database/config");
-const multer = require('multer');
-// set storage for upload images with multer
 
+
+
+const fileUpload = require('express-fileupload');
+
+const { startConnection } = require("../database/config");
 
 class Server {
 
@@ -35,11 +37,15 @@ class Server {
 		// for parsing application/json in replace of scripts
 		this.app.use( express.json() );
 		//form data
-		// this.app.use(upload.array()); 
+		this.app.use(fileUpload({
+			createParentPath: true,
+			// useTempFiles: true
+		}));
 		// Directorio Público
 		this.app.use( express.static("public") );
 		// for parsing application/xwww-
 		this.app.use(bodyParser.urlencoded({ extended: true }));
+		/*
 		const storage = multer.diskStorage({
 			destination: ( req, file, cb)=>{
 				cb(null, '../uploads/');
@@ -62,6 +68,7 @@ class Server {
 		// 	useTempFiles : true,
 		// 	tempFileDir : '/tmp/'
 		// }));
+		*/
 	}
 	routes() {
 		// this.app.use('/', (req,res) => {
@@ -69,7 +76,7 @@ class Server {
 		// })
 		this.app.use('/',require('../routes/index.routes'));
 		this.app.use( this.paths.auth, require("../routes/auth.routes") );
-		this.app.use( this.paths.genre, upload.single("image"), require("../routes/genre.routes") );
+		this.app.use( this.paths.genre, require("../routes/genre.routes") );
 
 		
 
