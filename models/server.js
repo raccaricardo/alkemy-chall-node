@@ -22,6 +22,8 @@ class Server {
 		this.paths = {
 			auth: "/api/auth",
 			genre: "/api/genre",
+			character: "/api/character",
+			movie: "/api/movie"
 			
 		};
 		this.connectDB();
@@ -45,30 +47,7 @@ class Server {
 		this.app.use( express.static("public") );
 		// for parsing application/xwww-
 		this.app.use(bodyParser.urlencoded({ extended: true }));
-		/*
-		const storage = multer.diskStorage({
-			destination: ( req, file, cb)=>{
-				cb(null, '../uploads/');
-			},
-			filename: ( req, file, cb)=>{
-				console.log(file);
-				cb(null, Date.now() +"-" + path.extname(file.originalname)  )
-			}
-		})
-		this.app.use(multer(( 
-			storage
-			dest: path.join(__dirname, 'uploads')
-		).single('image')));
-		// FileUpload
-
-		// this.app.use(multer({ 
-		// 	dest: 'uploads'
-		// }).single('image'));
-		// this.app.use(fileUpload({
-		// 	useTempFiles : true,
-		// 	tempFileDir : '/tmp/'
-		// }));
-		*/
+		 
 	}
 	routes() {
 		// this.app.use('/', (req,res) => {
@@ -77,6 +56,8 @@ class Server {
 		this.app.use('/',require('../routes/index.routes'));
 		this.app.use( this.paths.auth, require("../routes/auth.routes") );
 		this.app.use( this.paths.genre, require("../routes/genre.routes") );
+		this.app.use( this.paths.character, require("../routes/character.routes") );
+		this.app.use( this.paths.movie, require("../routes/movie.routes") );
 
 		
 

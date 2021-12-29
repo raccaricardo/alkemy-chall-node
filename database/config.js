@@ -23,9 +23,8 @@ const startConnection = async () => {
         await connection.query(`CREATE DATABASE IF NOT EXISTS \`${process.env.DB_NAME}\`;` );
 
 
-        await sequelize.sync({ alter: true, force:true, match: /_test$/ });
-
-        // await sequelize.sync();
+        // await sequelize.sync({ alter: true, force:true, match: /_test$/ });
+        await sequelize.sync();
 
 
 

@@ -1,7 +1,6 @@
 const path = require("path");
-// const fileUpload = require('express-fileupload');
-const { v4 : uuidv4 } = require('uuid');
 const fs = require('fs');
+const { v4 : uuidv4 } = require('uuid');
 
 
 const uploadLocalFile = async (files, limitFiles = 3, validExtensions = ["png", "jpg", "jpeg", "gif"], folderName = "", baseFolder = "../uploads/") =>
@@ -26,8 +25,9 @@ const uploadLocalFile = async (files, limitFiles = 3, validExtensions = ["png", 
 			// console.log({finalFileName});
 			uploadPath = path.join(__dirname, baseFolder, folderName, finalFileName);
 
-			// Validate Extensions 
 			savedFiles.push(`${baseFolder}/${folderName}/${finalFileName}`);
+
+			// Validate Extensions 
 			if (!validExtensions.includes(fileExtension)) {
 				savedFiles.pop();
 				return reject(`file extension:"${fileExtension}" not allowed. Valid extensions: ${validExtensions}`);

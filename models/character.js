@@ -14,7 +14,7 @@ name: {
     unique: true,
     allowNull: false
 },
-age: { type: DataTypes.DATE },
+age: { type: DataTypes.INTEGER },
 
 weight:{type: DataTypes.DECIMAL(10,2)},
 
