@@ -8,14 +8,15 @@ const imagesFolderName = 'genre';
 const addGenre = async( req,res ) => {
     try {
         const { name } = req.body;
-        console.log({name});
-        let image;
-        if (req.files) {
-			image = await uploadLocalFile(req.files, 1, undefined, imagesFolderName );
+        if (req.files?.image) {
+            const image = await uploadLocalFile(req.files, 1, undefined, imagesFolder );
+            const genre = await Genre.create({ name, image });
+            await genre.save();
+            res.status(201).send({ ok: true, genre, message: 'Movie added successfully' });
 		}
-        image = image[0];
+     
 
-        const genre = await Genre.create({ name, image });
+        const genre = await Genre.create({ name });
         await genre.save();
         res.status(201).send({ ok: true, genre, message: 'Genre added successfully' });
     } catch (error) {
@@ -40,13 +41,14 @@ const editGenre = async( req,res ) => {
         let image = null;
         if(req.files?.image){
             image = await uploadLocalFile(req.files, 1, undefined, imagesFolderName);
-            console.log(`image uploaded ${image}`);
-            let images = [];
-            images[0] = genre.image;
-            const filePath = path.join(__dirname,genre.image);
-            fs.unlink(filePath, function(err){
-                if(err) throw err;
-            })
+            
+            if(genre.image){
+                const filePath = path.join(__dirname,genre.image);
+                fs.unlink(filePath, function(err){
+                    if(err) throw err;
+                })
+            }
+
             await Genre.update({ name, image: image[0] }, {where: {id}});
             return res.status(200).send({ ok: true, message: 'Genre updated successfully' });
 
@@ -71,11 +73,17 @@ const deleteGenre = async( req,res ) => {
         if(!genreExist){
             res.status(404).json({ok: false, msg: 'gender id not found'});
         }
+        if(genreExist.image){
+                const filePath = path.join(__dirname,genre.image);
+                fs.unlink(filePath, function(err){
+                    if(err) throw err;
+                })
+            }
         const genre = await Genre.destroy({where: {id}});
         res.status(200).send({ ok: true, message: 'Genre deleted successfully' });
     } catch (error) {
         console.log(error);
-        if(error.message == "Validation error"){
+        if(error?.message == "Validation error"){
             return res.status(400).json({ok: false, msg: 'Validation error', error: error.errors});
         }
         res.status(500).send({ ok: false, message: 'Error in deleting genre', error: error.message });
@@ -88,9 +96,6 @@ const getGenres = async( req,res ) => {
         res.status(200).send({ ok: true, genres, message: 'Genres retrieved successfully' });
     } catch (error) {
         console.log(error);
-        if(error.message == "Validation error"){
-            return res.status(400).json({ok: false, msg: 'Validation error', error: error.errors});
-        }
         res.status(500).send({ ok: false, message: 'Error in retrieving genres', error: error.message });
     }
 }

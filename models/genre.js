@@ -1,5 +1,5 @@
 const { sequelize } = require('../database/config.js');
-const { DataTypes } = require('sequelize');
+const { DataTypes, models } = require('sequelize');
 
 const Genre = sequelize.define('Genre', {
   // Model attributes are defined here
@@ -21,9 +21,9 @@ image: {
   // Other model options go here
     timestamps: false
 });
-
+// Genre.belongsTo(models.Movie);
 // Genre.associate = function (models) {
-//         Genre.hasMany(models.Movie, {
+//         Genre.hasOne(models.Movie, {
 //             as: 'movies',
 //             foreignKey: 'genre_id'
 //         })

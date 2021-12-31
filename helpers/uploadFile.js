@@ -49,19 +49,18 @@ const uploadLocalFile = async (files, limitFiles = 3, validExtensions = ["png", 
 
 	});
 };
-
-const deleteLocalFile = async (filesPath = [])=>{
-	if(filesPath = []){
+//file path without __dirname
+const deleteLocalFile = (filePath = "")=>{
+	if(filePath = ""){
 		return;
 	}
-	filesPath.forEach(file =>{
-		const filePath = path.join(__dirname,file);
-		console.log(filePath);
-		fs.unlink(filePath, function(err){
-			clg.log("delete completed");
-			if(err) throw err;
+		const pathFile = path.join(__dirname,filePath);
+		console.log({pathFile});
+		fs.unlink(pathFile, function(err){
+			console.log("delete completed");
+			if(err){ throw err;}
 		})
-	} );
+	
 
 }
 module.exports = { 

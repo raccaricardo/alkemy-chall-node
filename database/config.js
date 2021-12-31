@@ -24,7 +24,9 @@ const startConnection = async () => {
 
 
         // await sequelize.sync({ alter: true, force:true, match: /_test$/ });
-        await sequelize.sync();
+        await sequelize.sync({ alter: true,force:true, match: /_test$/ });
+
+        // await sequelize.sync();
 
 
 

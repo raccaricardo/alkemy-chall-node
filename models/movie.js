@@ -1,5 +1,7 @@
 const { sequelize } = require('../database/config.js');
 const { DataTypes } = require('sequelize');
+const Character = require('./character.js');
+const Genre = require('./genre.js');
 
 const Movie = sequelize.define('Movie', {
   // Model attributes are defined here
@@ -24,18 +26,19 @@ genre_id:{type: DataTypes.INTEGER}
   // Other model options go here
     timestamps: false,
 });
-Movie.associate = function(models) {
-  // associations can be defined here
+// Movie.belongsToMany(Character, { through: 'movie_character' });
+// Movie.associate = function(models) {
+//   // associations can be defined here
 //    Movie.hasMany(models.Character, { 
 //         as: 'movies',
 //         through: 'movie_character',
 //         foreignKey: 'movie_id'
 //    });
-   Movie.belongsTo(models.Genre, { 
-        as: 'genres',
-        foreignKey: 'genre_id',    
-    })
-}
+//    Movie.hasOne(Genre, { 
+//         as: 'genres',
+//         foreignKey: 'genre_id',    
+//     })
+// }
 
 
 module.exports = Movie;
