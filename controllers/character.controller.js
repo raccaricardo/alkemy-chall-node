@@ -107,15 +107,68 @@ const deleteCharacter = async( req,res ) => {
         res.status(500).json({ok: false, msg: 'something went wrong'});
     }
 }
-// ! GET LIST
+// ! GET LIST filtered
 const getCharacters = async( req,res ) => {
     try{
-        let characters = await Character.findAll();
-         for (let i = 0; i < characters.length; i++) {
-            if(characters[i].image){ 
-                characters[i].image = path.join(__dirname,characters[i].image)
+        const { name, age, movie } = req.query;
+        let characters = null;
+        let list = [];
+        // # filter by name, age and movie associated
+        if( name && age && movie){
+            characters = Movie_Character.findAll({
+                attributes: ['character_id' ],
+                where: { movie_id: movie }
+            })
+            for(let i = 0; i < characters.length; i++){
+                const char = await Character.findOne( { 
+                    where: { id: characters[i].character_id, name, age }
+                });
+                if(char){
+                    list.push(char);
+                }
             }
+            return res.status(200).json({ok: true, characters: list});
         }
+        // # filter by name
+        if(name && !age && !movie){
+            characters = await Character.findAll( { 
+                    where: { name }
+                });
+            return res.status(200).json({ok: true, characters: characters});
+        }
+        // # filter by age
+        if( age && !name && !movie){
+            characters = await Character.findAll( { 
+                    where: { age }
+                });
+            return res.status(200).json({ok: true, characters });
+        }
+        // # filter by movie
+        if( !age && !name && movie){
+            characters = Movie_Character.findAll({ where: { movie_id: movie } });
+            list = [];
+            for(let i = 0; i < characters.length; i++){
+                const char = await Character.findByPk( characters[i].character_id );
+                if(char){
+                    list.push(char);
+                }
+            }
+            return res.status(200).json({ok: true, characters: list});
+        }
+        if(!name && age && movie){
+            characters = Movie_Character.findAll({ where: { movie_id: movie } });
+            list = [];
+            for(let i = 0; i < characters.length; i++){
+                const char = await Character.findOne( { 
+                    where: { id: characters[i].character_id, age }
+                });
+                if(char){
+                    list.push(char);
+                }
+            }
+            return res.status(200).json({ok: true, characters: list});
+        }
+        characters = await Character.findAll();
         res.status(200).send({ ok: true, characters });
     }catch(err){
         console.log(err);

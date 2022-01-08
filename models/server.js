@@ -53,7 +53,7 @@ class Server {
 		// this.app.use('/', (req,res) => {
 		// 	res.render('../views/home.hbs');
 		// })
-		this.app.use('/',require('../routes/index.routes'));
+		// this.app.use('/',require('../routes/index.routes'));
 		this.app.use( this.paths.auth, require("../routes/auth.routes") );
 		this.app.use( this.paths.genre, require("../routes/genre.routes") );
 		this.app.use( this.paths.character, require("../routes/character.routes") );

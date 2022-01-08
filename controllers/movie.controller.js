@@ -46,7 +46,7 @@ const addMovie = async( req, res ) =>{
         return res.status(500).json({ok: false, error, msg: 'something went wrong'});
     }
 }
-// ! GET /movies 
+// ! GET /movies filtered
 const listMovies = async( req, res ) =>{
     try {
         const { name, order, genre } = req.query;
