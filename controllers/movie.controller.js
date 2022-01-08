@@ -1,5 +1,7 @@
 const Movie  = require('../models/movie');
 const Genre = require('../models/genre');
+const Character = require('../models/character');
+const MovieCharacter = require('../models/movie_character')
 const { uploadLocalFile, deleteLocalFile } = require('../helpers')
 const path = require("path");
 const fs = require('fs');
@@ -10,38 +12,69 @@ const imagesFolder = 'movie';
 // ! POST /
 const addMovie = async( req, res ) =>{
     try {
-        const { title, released, qualification, genre_id } = req.body;
+        const { title, released, qualification, genre_id, associated_characters, associated_characters_id } = req.body;
+        let image = null;
+        let movie = null;
         if(req.files?.image){
-            const image = await uploadLocalFile(req.files, 1, undefined, imagesFolder );
-            console.log(`image uploaded ${image}`);
-            const movie = await Movie.create({ title, released, qualification, image: image[0], genre_id });
+            image = await uploadLocalFile(req.files, 1, undefined, imagesFolder );
+            movie = await Movie.create({ title, released, qualification, image: image[0], genre_id });
             await movie.save();
-            res.status(201).send({ ok: true, movie, message: 'Movie added successfully' });
+        }else{
+            movie = await Movie.create({ title, released, qualification, image: null, genre_id });
+            await movie.save();
         }
-        const movie = await Movie.create({ title, released, qualification, image: null, genre_id });
-        
-        await movie.save();
+
+        if(typeof associated_characters == 'string'){
+            associated_movies = JSON.parse(associated_movies);
+            const { name, age, weight, history } = associated_characters;
+            const character = await Character.create({  name, age, weight, history });
+            const movie_character = MovieCharacter.create({ movie_id: movie.id, character_id: character.id });
+        }else{
+            for(let i = 0; i < associated_characters?.length; i++) {
+                associated_characters[i] = JSON.parse(associated_characters[i]);
+                const {  name, age, weight, history } = associated_characters[i];
+                const character = await Character.create({  name, age, weight, history });
+                const movie_character = MovieCharacter.create({ movie_id: movie.id, character_id: character.id });
+            }
+        }
+
         res.status(201).send({ ok: true, movie, message: 'Movie added successfully' });
 
     } catch (error) {
         console.log(error);
-        if( error?.errors[0].origin === 'DB'){
-            return res.status(400).json({ok: false, error, msg: 'Validation error'});
-        }
-        res.status(500).json({ok: false, error, msg: 'something went wrong'});
+       
+        return res.status(500).json({ok: false, error, msg: 'something went wrong'});
     }
 }
-// ! GET /list 
+// ! GET /movies 
 const listMovies = async( req, res ) =>{
     try {
+        const { name, order, genre } = req.query;
+        let movies = null;
+        if( name && order && genre){
+            movies = await Movie.findAll( { 
+                where: { name, genre_id: genre },
+                order: [
+                    'released', order
+                ]
+            } );
+            return res.status(200).json({ok: true, movies});
+        }
+        if( name ){ 
+            movies = await Movie.findAll( { where: { name} } );
+        }
+        if( genre ){ 
+            movies = await Movie.findAll( { where: { genre_id: genre } } );
+        }
+        if(order){ 
+            movies = await Movie.findAll( { 
+                order: [ ['released', order ] ]
+            } );
+        }
 
-        const movies = await Movie.findAll({
-            // include: [{
-            //     model: Genre,
-            //     as: 'genres'
-            // }]
-            // include: Genre
-        });
+        movies = await Movie.findAll( { 
+            attributes: [ 'title', 'image', 'released' ]
+        } );
         
         res.status(200).send({ ok: true, movies, message: 'Movies list' });
     }catch (error) {
@@ -89,7 +122,7 @@ const deleteMovie = async( req, res ) =>{
             return res.status(404).json({ok: false, msg: 'Movie not found'});
         }
         if(movie.image){
-                const filePath = path.join(__dirname,genre.image);
+                const filePath = path.join(__dirname,movie.image);
                 fs.unlink(filePath, function(err){
                     if(err) throw err;
                 })

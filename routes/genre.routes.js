@@ -3,7 +3,7 @@ const { check } = require('express-validator');
 
 const path = require ('path');
 
-const { validateFields, validateJWT, userExistById, genreExistById } = require('../middlewares');
+const { validateFields, validateJWT } = require('../middlewares');
 
 const { addGenre, deleteGenre, editGenre, getGenre, getGenres } = require('../controllers/');
 
@@ -11,13 +11,13 @@ const router = Router();
 
 router.post('/', 
 [
+    validateJWT,
     check('name', 'genre name is required').notEmpty(),
-    
-    // check('name', 'genre name exist').custom(genreExistByName),
     validateFields
 ], addGenre);
 router.get('/list', getGenres);
 router.delete('/:id', [
+    validateJWT,    
     check('id', 'gender id is required').notEmpty(),
     validateFields
 ], deleteGenre);

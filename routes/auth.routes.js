@@ -29,18 +29,19 @@ router.get('/:id',[
 ],
 getUser);
 
-router.post('/register', createUser);
+router.post('/register', [
+    check('email', 'email is required').notEmpty(),
+    check('password', 'password is required').notEmpty(),
+    validateFields
+], createUser);
 router.put('/edit/:id', [
     validateJWT,
     check('id', 'id is required').notEmpty(),
-    check("id").custom(userExistById),
     validateFields
     ],  
 editUser);
 router.delete('/:id', [
     validateJWT,
-    check("id").custom(userExistById),
-
     validateFields
 ], unsubscribeUser);
 

@@ -10,7 +10,7 @@ id: {
 },
 name: {
     type: DataTypes.STRING,
-    unique: true,
+    // unique: true,
     allowNull: false
 },
 image: { 
@@ -23,7 +23,7 @@ image: {
 });
 // Genre.belongsTo(models.Movie);
 // Genre.associate = function (models) {
-//         Genre.hasOne(models.Movie, {
+//         Genre.hasMany(models.Movie, {
 //             as: 'movies',
 //             foreignKey: 'genre_id'
 //         })

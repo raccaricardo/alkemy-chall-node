@@ -22,9 +22,9 @@ const startConnection = async () => {
         // await connection.query('DROP DATABASE IF EXISTS ' + process.env.DB_NAME);
         await connection.query(`CREATE DATABASE IF NOT EXISTS \`${process.env.DB_NAME}\`;` );
 
-
-        // await sequelize.sync({ alter: true, force:true, match: /_test$/ });
-        await sequelize.sync({ alter: true,force:true, match: /_test$/ });
+        // await sequelize.drop();
+        await sequelize.sync({ alter: true, force:true, match: /_test$/ });
+        // await sequelize.sync({ alter: true, match: /_test$/ });
 
         // await sequelize.sync();
 

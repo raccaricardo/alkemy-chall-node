@@ -21,13 +21,13 @@ character_id: {
 });
 
 Movie_Character.associate = function(models) {
-    Movie_Character.belongsTo(models.Character, {
+    Movie_Character.hasMany(models.Character, {
         as: 'chars',
         foreignKey: 'character_id'
     })
 }
 Movie_Character.associate = function(models) {
-    Movie_Character.belongsTo(models.Movie, {
+    Movie_Character.hasMany(models.Movie, {
         as: 'movies',
         foreignKey: 'movie_id'
     })

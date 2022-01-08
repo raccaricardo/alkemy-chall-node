@@ -13,10 +13,24 @@ const { validateFields, validateJWT } = require('../middlewares');
 
 const router = Router();
 
-router.post('/', addMovie);
-router.get('/list', listMovies);
-router.delete('/:id', deleteMovie);
-router.put('/:id', editMovie);
+router.post('/',[ 
+    validateJWT, 
+    check('id', 'id is required').notEmpty(),
+    check('title', 'title is required').notEmpty(),
+    check('genre_id', 'genre_id is required').notEmpty(),
+    validateFields
+], addMovie);
+router.get('/movies', listMovies);
+router.put('/:id', [ 
+    validateJWT, 
+    check('id', 'id is required').notEmpty(),
+    validateFields
+], editMovie);
+router.delete('/:id',[ 
+    validateJWT, 
+    check('id', 'id is required').notEmpty(),
+    validateFields
+], deleteMovie);
 
 
 module.exports = router;

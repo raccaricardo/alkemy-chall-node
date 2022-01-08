@@ -1,4 +1,4 @@
-const Character  = require('../models/genre');
+const Character  = require('../models/character');
 const { uploadLocalFile, deleteLocalFile } = require('../helpers')
 const path = require("path");
 const fs = require('fs');
@@ -11,9 +11,8 @@ const addCharacter = async( req,res ) => {
         if(req.files?.image){
             const image = await uploadLocalFile(req.files, 1, undefined, imagesFolder );
             console.log(`image uploaded ${image}`);
-            const character = await Character.create({ name, age, weight, history, image: image[0] });
-            await character.save();
-            res.status(201).send({ ok: true, character, message: 'Character added successfully' });
+            await Character.create({ name, age, weight, history, image: image[0] });
+            res.status(201).send({ ok: true, message: 'Character added successfully' });
         }
         const character = await Character.create({ name, age, weight, history, image: null });
         await character.save();
@@ -33,11 +32,10 @@ const addCharacter = async( req,res ) => {
     }
 }
 // ! PUT
-const editCharacter = async( req,res ) => {
+const editCharacter = async( req, res ) => {
     try{
-        console.log("edit controller");
         const { id } = req.params;
-        const { name, age, weight, history } = req.body;
+        let { name, age, weight, history } = req.body;
         const character = await Character.findByPk(id);
         if(!character){
             res.status(404).json({ok: true, msg: 'character id not found'});
@@ -54,12 +52,27 @@ const editCharacter = async( req,res ) => {
                 })
             }
             // UPDATE char
-            await Character.update({ name, age, weight, history, image: image[0] }, {where: {id}});
-            return res.status(200).send({ ok: true, message: 'Character updated successfully' });
+            if(name == character.name){
+                await Character.update({ 
+                    age: character.age || age, 
+                    weight: character.weight || weight, 
+                    history: character.history || history, 
+                    image: image[0] 
+                    }, { where: {id} } 
+                );
+            }else{
+                await Character.update({ 
+                    name: name || character.name,
+                    age: character.age || age, 
+                    weight: character.weight || weight, 
+                    history: character.history || history, 
+                    image: image[0] 
+                    }, { where: {id} } 
+                );
+            }
+            
 
         }
-        // UPDATE char
-        await Character.update({ name, age, weight, history }, {where: {id}});
         return res.status(200).send({ ok: true, message: 'Character updated successfully' });
 
     }catch(err){

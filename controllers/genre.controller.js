@@ -1,4 +1,6 @@
 const Genre  = require('../models/genre');
+const Movie = require('../models/movie');
+const Movie_Character = require('../models/movie_character');
 const { uploadLocalFile, deleteLocalFile } = require('../helpers')
 const path = require("path");
 const fs = require('fs');
@@ -7,17 +9,31 @@ const imagesFolderName = 'genre';
 // ! POST
 const addGenre = async( req,res ) => {
     try {
-        const { name } = req.body;
+        let { name, associated_movies } = req.body;
+        let image = null;
+        let genre = null;
         if (req.files?.image) {
-            const image = await uploadLocalFile(req.files, 1, undefined, imagesFolder );
-            const genre = await Genre.create({ name, image });
+            image = await uploadLocalFile(req.files, 1, undefined, imagesFolderName );
+            genre = await Genre.create({ name, image: image[0] });
             await genre.save();
-            res.status(201).send({ ok: true, genre, message: 'Movie added successfully' });
-		}
-     
 
-        const genre = await Genre.create({ name });
-        await genre.save();
+		}else{
+            genre = await Genre.create({ name });
+            await genre.save();
+        }
+        
+        if(typeof associated_movies == 'string'){
+            associated_movies = JSON.parse(associated_movies);
+            const { title, released, qualification } = associated_movies;
+            const movie = await Movie.create({ title, released, qualification, genre_id: genre.id })
+        }else{
+            for(let i = 0; i < associated_movies?.length; i++) {
+                associated_movies[i] = JSON.parse(associated_movies[i]);
+                const { title, released, qualification } = associated_movies[i];
+                const movie = await Movie.create({ title, released, qualification, genre_id: genre.id });
+            }
+        }
+
         res.status(201).send({ ok: true, genre, message: 'Genre added successfully' });
     } catch (error) {
         console.log(error);
@@ -69,17 +85,17 @@ const editGenre = async( req,res ) => {
 const deleteGenre = async( req,res ) => {
     try {
         const { id } = req.params;
-        const genreExist = await Genre.findByPk(id);
-        if(!genreExist){
+        const genre = await Genre.findByPk(id);
+        if(!genre){
             res.status(404).json({ok: false, msg: 'gender id not found'});
         }
-        if(genreExist.image){
+        if(genre.image){
                 const filePath = path.join(__dirname,genre.image);
                 fs.unlink(filePath, function(err){
                     if(err) throw err;
                 })
             }
-        const genre = await Genre.destroy({where: {id}});
+        await Genre.destroy({where: {id}});
         res.status(200).send({ ok: true, message: 'Genre deleted successfully' });
     } catch (error) {
         console.log(error);

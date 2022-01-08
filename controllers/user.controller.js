@@ -87,7 +87,7 @@ const createUser = async (req, res)=> {
         res.status(500).json({ ok: false, error: error.message });
     }
 }
-// PUT 
+// ! PUT
 const editUser = async (req, res) => {
     try {
         const { id } = req.params;
