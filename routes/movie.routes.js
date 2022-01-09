@@ -15,7 +15,6 @@ const router = Router();
 
 router.post('/',[ 
     validateJWT, 
-    check('id', 'id is required').notEmpty(),
     check('title', 'title is required').notEmpty(),
     check('genre_id', 'genre_id is required').notEmpty(),
     validateFields

@@ -53,7 +53,7 @@ const listMovies = async( req, res ) =>{
         let movies = null;
         if( name && order && genre){
             movies = await Movie.findAll( { 
-                where: { name, genre_id: genre },
+                where: { title: name, genre_id: genre },
                 order: [
                     'released', order
                 ]
@@ -127,7 +127,7 @@ const deleteMovie = async( req, res ) =>{
                     if(err) throw err;
                 })
             }
-        await movie.destroy();
+        await Movie.destroy({ where: { id } });
         res.status(200).send({ ok: true, message: 'Movie deleted successfully' });
     }catch (error) {
         console.log(error);

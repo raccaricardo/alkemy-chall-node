@@ -1,7 +1,8 @@
 const bcrypt = require("bcryptjs");
 const { generateJWT } = require("../helpers/");
+const { encryptpass } = require("../helpers/encrypt");
 const User = require('../models/user');
-// GET LIST USERS
+// ! GET LIST USERS
 const getUsers = async (req, res)=>{
     try {
         const users = await User.findAll();
@@ -32,24 +33,32 @@ const getUser = async (req, res)=>{
         res.status(500).json({ ok: false, error: error.message });          
     }
 }
-// GET LOGIN
+// ! GET LOGIN
 const loginUser = async (req, res)=>{
     try {
-        const { email, password } = req.body;
-        const user = await User.findAll({ where: { email, password } });
-        if( user.length > 0 && user[0].active ){
-            const token = await generateJWT(user.id);
-            res.status(200).json({
-                ok: true,
-                user, 
-                token
-            });
-        }else{
-            res.status(401).json({
-                ok: false,
-                msg: 'Invalid credentials or not registered'
-            });
+        const { email, password = "" } = req.body;
+
+        const user = await User.findOne({ where: { email } });
+        console.log(user);
+        if(!user){
+            res.satus(404).json({ok: true, msg: 'Invalid credentials'});
         }
+
+        const validPassword = bcrypt.compareSync(password, user.password);
+			if (validPassword) {
+				//generate JWT
+				const token = await generateJWT(user.id);
+				req.user = user;
+				req.uid = user.id;
+				return res.json({
+                    ok: true,
+					msg: "Login OK",
+					token
+				});
+			}else{
+				return res.status(401).json({ msg: "Email or password incorrect" });
+			}
+        
     } catch (error) {
         console.log(error);
         if(error.message == "Validation error"){
@@ -58,14 +67,14 @@ const loginUser = async (req, res)=>{
         res.status(500).json({ ok: false, error: error.message });
     }
 }
-// POST
+// ! POST
 const createUser = async (req, res)=> {
     try {
-        const {email, password} = req.body;
-        const userExist = await User.findAll({ where: { email } });
-        let user = userExist[0];
+        let {email, password} = req.body;
+        password = await encryptpass(password);
+        let user = await User.findOne({ where: { email } });
         if(user && user?.active){
-            res.status(400).json({
+            return res.status(400).json({
                 ok: true,
                 msg: 'User already registered'
             });
@@ -92,7 +101,10 @@ const editUser = async (req, res) => {
     try {
         const { id } = req.params;
         const user = await User.findByPk( id );
-        let {  email = user.email, password = user.password } = req.body;
+        let {  email = user.email, password } = req.body;
+        if(password){
+            password = encryptpass(password);
+        }
         if(email !== user.email && password !== user.password){
             await User.update({ email, password }, { where: { id } });
         }
@@ -115,7 +127,7 @@ const editUser = async (req, res) => {
         res.status(500).json({ ok: false, error: error.message });
     }
 }
-//DELETE 
+// ! DELETE 
 const unsubscribeUser = async (req, res) => {
     try {
         const { id } = req.params;
